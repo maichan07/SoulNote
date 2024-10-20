@@ -1,14 +1,27 @@
-import React, { useState, useMemo } from 'react'; 
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import { useUser } from '../UserContext'; // Import the context
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App'; 
 
 const Dashboard = () => {
-  const { username } = useUser(); // Access username from UserContext
+  const { username, setUsername } = useUser(); // Access username and setUsername from UserContext
   const [textFields, setTextFields] = useState<string[]>([]); // State to store input values
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); // Initialize useNavigation with the correct type
 
   // Function to add a new text field
   const addTextField = () => {
     setTextFields((prevFields) => [...prevFields, '']); // Add an empty string to the text fields
+  };
+
+  // Handle log out
+  const handleLogout = () => {
+    setUsername(''); // Reset the username to log out the user
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'LogIn' }], // Reset the stack to LogIn screen
+    });
   };
 
   // Use useMemo to optimize rendering of text fields
@@ -50,6 +63,11 @@ const Dashboard = () => {
       {/* Circular button to add more text fields */}
       <TouchableOpacity style={styles.addButton} onPress={addTextField}>
         <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
+
+      {/* Log Out button */}
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
     </View>
   );
@@ -108,6 +126,18 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: 'white',
     fontSize: 30,
+    fontWeight: 'bold',
+  },
+  logoutButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#F44336',
+    borderRadius: 5,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

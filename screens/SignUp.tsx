@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TextInput, Button, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { FIREBASE_AUTH } from '../FirebaseConfig'; // Import Firebase Auth
+import { createUserWithEmailAndPassword } from 'firebase/auth'; // Import the create user function
 import { useUser } from '../UserContext'; // Import the context
 
 type RootStackParamList = {
-  Dashboard: undefined;
+  InsideLayout: undefined; // Updated to reflect the InsideLayout navigation
 };
 
-type SignUpScreenProp = StackNavigationProp<RootStackParamList, 'Dashboard'>;
+type SignUpScreenProp = StackNavigationProp<RootStackParamList, 'InsideLayout'>;
 
 export default function SignUp() {
   const [username, setUsername] = useState('');
@@ -28,14 +30,28 @@ export default function SignUp() {
     }
   }, [password, confirmPassword]); // Depend on password and confirmPassword
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (errorMessage) {
       console.log(errorMessage); // Log error message if passwords don't match
       return;
     }
-    console.log('Username:', username, 'Email:', email, 'Password:', password);
-    setUserNameContext(username); // Set username in context
-    navigation.navigate('Dashboard');
+
+    try {
+      // Create user with Firebase
+      const userCredential = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const user = userCredential.user;
+
+      setUserNameContext(username); // Set username in context
+      navigation.navigate('InsideLayout'); // Navigate to InsideLayout after successful sign up
+    } catch (error: unknown) {
+      // Cast the error to a known type (Error) to safely access properties
+      if (error instanceof Error) {
+        setErrorMessage(error.message); // Set error message if sign up fails
+        console.log('Sign Up Error:', error.message);
+      } else {
+        console.log('Sign Up Error: Unknown error occurred');
+      }
+    }
   };
 
   return (
