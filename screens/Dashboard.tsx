@@ -1,71 +1,55 @@
-import React, { useState, useMemo } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
-import { useUser } from '../UserContext'; // Import the context
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { useUser } from '../UserContext';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../App'; 
+import { RootStackParamList } from '../App';
+import { Note } from '../type'; 
+
 
 const Dashboard = () => {
-  const { username, setUsername } = useUser(); // Access username and setUsername from UserContext
-  const [textFields, setTextFields] = useState<string[]>([]); // State to store input values
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); // Initialize useNavigation with the correct type
+  const { username, setUsername } = useUser();
+  const [notes, setNotes] = useState<Note[]>([]);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Dashboard'>>();
 
-  // Function to add a new text field
-  const addTextField = () => {
-    setTextFields((prevFields) => [...prevFields, '']); // Add an empty string to the text fields
+  // Check for new note from CreateNote
+  useEffect(() => {
+    if (route.params && route.params.note) {
+      setNotes((prevNotes) => [...prevNotes, route.params.note as Note]);
+    }
+  }, [route.params]);
+
+  const handleAddNote = () => {
+    navigation.navigate('CreateNote');
   };
 
-  // Handle log out
   const handleLogout = () => {
-    setUsername(''); // Reset the username to log out the user
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'LogIn' }], // Reset the stack to LogIn screen
-    });
+    setUsername('');
+    navigation.reset({ index: 0, routes: [{ name: 'LogIn' }] });
   };
-
-  // Use useMemo to optimize rendering of text fields
-  const renderedTextFields = useMemo(() => {
-    return textFields.map((text, index) => (
-      <TextInput
-        key={index}
-        style={styles.input}
-        placeholder={`Input ${index + 1}`}
-        value={text}
-        onChangeText={(value) => {
-          const newFields = [...textFields];
-          newFields[index] = value; // Update the specific input field
-          setTextFields(newFields);
-        }}
-      />
-    ));
-  }, [textFields]);
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: 'https://png.pngtree.com/png-clipart/20230610/ourlarge/pngtree-aesthetic-blue-notepad-for-journal-or-notes-png-image_7125652.png' }} 
-        style={styles.logo} 
+      <Image
+        source={{ uri: 'https://png.pngtree.com/png-clipart/20230610/ourlarge/pngtree-aesthetic-blue-notepad-for-journal-or-notes-png-image_7125652.png' }}
+        style={styles.logo}
       />
       <Text style={styles.title}>Welcome to Your Notepad App!</Text>
       <Text style={styles.subtitle}>Keep track of your thoughts, feelings, and ideas</Text>
-      
-      {/* Display username if it exists */}
-      {username ? (
-        <Text style={styles.username}>Hello, {username}!</Text>
-      ) : (
-        <Text style={styles.username}>Hello, Guest!</Text>
-      )}
+      {username ? <Text style={styles.username}>Hello, {username}!</Text> : <Text style={styles.username}>Hello, Guest!</Text>}
 
-      {/* Render the dynamic text fields */}
-      {renderedTextFields}
+      {notes.map((note, index) => (
+        <View key={index} style={styles.note}>
+          <Text style={styles.noteTitle}>{note.title}</Text>
+          <Text>{note.content}</Text>
+        </View>
+      ))}
 
-      {/* Circular button to add more text fields */}
-      <TouchableOpacity style={styles.addButton} onPress={addTextField}>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddNote}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
 
-      {/* Log Out button */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
@@ -81,65 +65,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#00796B',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#004D40',
-    textAlign: 'center',
-  },
-  username: {
-    fontSize: 18,
-    color: '#1E88E5',
-    marginBottom: 20,
-  },
-  input: {
-    height: 50,
-    borderColor: '#00796B',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    width: '100%',
-  },
-  addButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#1E88E5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
-  },
-  addButtonText: {
-    color: 'white',
-    fontSize: 30,
-    fontWeight: 'bold',
-  },
-  logoutButton: {
-    marginTop: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#F44336',
-    borderRadius: 5,
-  },
-  logoutButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  logo: { width: 100, height: 100, marginBottom: 20 },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#00796B', marginBottom: 10, textAlign: 'center' },
+  subtitle: { fontSize: 16, color: '#004D40', textAlign: 'center' },
+  username: { fontSize: 18, color: '#1E88E5', marginBottom: 20 },
+  note: { backgroundColor: '#FFF', padding: 10, borderRadius: 5, marginBottom: 10, width: '100%' },
+  noteTitle: { fontSize: 16, fontWeight: 'bold', color: '#00796B' },
+  addButton: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#1E88E5', alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 30, right: 30 },
+  addButtonText: { color: 'white', fontSize: 30, fontWeight: 'bold' },
+  logoutButton: { marginTop: 20, paddingVertical: 10, paddingHorizontal: 20, backgroundColor: '#F44336', borderRadius: 5 },
+  logoutButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
 });
 
 export default Dashboard;

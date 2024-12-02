@@ -19,10 +19,18 @@ export default function Welcome() {
       <Text style={styles.title}>SoulNote</Text>
       <Text style={styles.mantra}>Make notes, make it yours!</Text>
       <View style={styles.buttonContainer}>
-        <Button title="Log In" onPress={() => navigation.navigate('LogIn')} />
+        <Button
+          title="Log In"
+          onPress={() => navigation.navigate('LogIn')}
+          color="#800000" // Apply the red color to the button
+        />
       </View>
       <View style={styles.buttonContainer}>
-        <Button title="Sign Up" onPress={() => navigation.navigate('SignUp')} />
+        <Button
+          title="Sign Up"
+          onPress={() => navigation.navigate('SignUp')}
+          color="#800000" // Apply the red color to the button
+        />
       </View>
     </View>
   );
@@ -33,20 +41,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ADD8E6',
+    backgroundColor: '#FFFFFF', // White background
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#000000', // Black font color
     marginBottom: 20,
   },
   mantra: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#000000', // Black font color
     marginBottom: 20,
   },
   buttonContainer: {
-    marginVertical: 10, // Add vertical spacing between buttons
+    marginVertical: 10, // Spacing between buttons
     width: '80%',       // Adjust width if needed
   },
 });

@@ -3,13 +3,17 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { Note } from './type';
+
 import LogIn from './screens/LogIn';
 import SignUp from './screens/SignUp';
 import Dashboard from './screens/Dashboard';
 import Welcome from './screens/Welcome';
+import CreateNote from './screens/CreateNote'; // Import your new NoteCreation screen
 import { UserProvider } from './UserContext';
-import { FIREBASE_AUTH } from './FirebaseConfig'; // Import your Firebase config
-import { onAuthStateChanged } from 'firebase/auth'; // Import from Firebase Auth
+import { FIREBASE_AUTH } from './FirebaseConfig'; // Firebase config
+import { onAuthStateChanged } from 'firebase/auth';
+
 
 // Define a type for the stack's route parameter list
 export type RootStackParamList = {
@@ -17,7 +21,8 @@ export type RootStackParamList = {
   LogIn: undefined;
   SignUp: undefined;
   InsideLayout: undefined;
-  Dashboard: undefined;
+  Dashboard: { note?: Note };
+  CreateNote: undefined; // Add NoteCreation to the types
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,6 +32,7 @@ function InsideLayout() {
   return (
     <InsideStack.Navigator>
       <InsideStack.Screen name="Dashboard" component={Dashboard} />
+      <InsideStack.Screen name="CreateNote" component={CreateNote} />
     </InsideStack.Navigator>
   );
 }
